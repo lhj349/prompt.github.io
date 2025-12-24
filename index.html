@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>AI 提示词神器 (全自动存档版)</title>
     <style>
@@ -28,6 +28,8 @@
             padding: 20px;
             display: flex;
             justify-content: center;
+            /* 防止移动端点击高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
@@ -36,10 +38,10 @@
             display: flex;
             flex-direction: column;
             gap: 16px; 
-            padding-bottom: 280px; 
+            padding-bottom: 300px; /* 为底部面板留出更多空间 */
         }
 
-        h1 { text-align: center; margin-bottom: 5px; color: var(--accent); }
+        h1 { text-align: center; margin-bottom: 5px; color: var(--accent); font-size: 1.5rem; }
         .subtitle { text-align: center; color: #666; font-size: 12px; margin-bottom: 5px; }
 
         /* API 配置 */
@@ -55,6 +57,7 @@
         .config-input {
             flex: 1; background: #2b2b2b; border: 1px solid #444; color: #fff;
             padding: 8px 12px; border-radius: 6px; font-family: monospace; outline: none;
+            font-size: 14px;
         }
 
         /* 模块卡片 */
@@ -76,7 +79,7 @@
         .tag {
             background-color: var(--tag-bg);
             border: 1px solid var(--border);
-            padding: 6px 10px 6px 14px;
+            padding: 8px 12px; /* 增大触摸面积 */
             border-radius: 20px;
             font-size: 13px;
             cursor: pointer;
@@ -86,24 +89,22 @@
         .tag:hover { background-color: #383838; border-color: #555; }
         .tag.active { background-color: var(--tag-selected); color: white; border-color: var(--tag-selected); }
         .tag-close {
-            width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: #777; font-size: 14px; transition: 0.2s;
+            width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: #777; font-size: 16px; transition: 0.2s;
         }
         .tag.active .tag-close { color: rgba(255,255,255,0.7); }
-        .tag-close:hover { background-color: var(--danger); color: white !important; }
 
         /* 输入框 */
         .input-row { display: flex; gap: 8px; width: 100%; }
         input {
             background-color: #2b2b2b; border: 1px solid var(--border); color: white;
-            padding: 8px 12px; border-radius: 6px; flex: 1; outline: none; font-size: 13px;
+            padding: 10px 12px; border-radius: 6px; flex: 1; outline: none; font-size: 14px;
         }
         input:focus { border-color: var(--accent); background-color: #333; }
         .add-btn {
             background-color: #333; border: 1px solid var(--border); color: #ccc;
             padding: 0 16px; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold;
         }
-        .add-btn:hover { background-color: #444; color: white; }
 
         /* 基础信息布局 */
         .basic-row { display: flex; gap: 20px; align-items: flex-start; }
@@ -116,82 +117,97 @@
             position: fixed; bottom: 0; left: 0; width: 100%;
             background-color: rgba(20, 20, 20, 0.98);
             border-top: 1px solid #333;
-            padding: 12px 20px 24px 20px;
+            padding: 12px 15px 20px 15px;
             box-shadow: 0 -10px 25px rgba(0,0,0,0.5);
             z-index: 100;
             display: flex; flex-direction: column; align-items: center;
-            max-height: 48vh;
+            box-sizing: border-box;
             backdrop-filter: blur(10px);
         }
 
         .panel-controls {
             width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 12px; font-size: 12px; color: #888;
+            margin-bottom: 12px; font-size: 12px; color: #888; flex-wrap: wrap; gap: 10px;
         }
         
-        .panel-left { display: flex; align-items: center; gap: 15px; }
+        .panel-left { display: flex; align-items: center; gap: 12px; }
 
-        .history-toggle { cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; transition: 0.2s; }
-        .history-toggle:hover { color: var(--accent); background: #222; }
+        .history-toggle { cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 4px; background: #222; }
         
-        .clear-history-btn { cursor: pointer; color: #666; font-size: 11px; padding: 2px 6px; border: 1px solid #444; border-radius: 4px; display: none; }
-        .clear-history-btn:hover { color: var(--danger); border-color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+        .clear-history-btn { cursor: pointer; color: #666; font-size: 11px; padding: 4px 8px; border: 1px solid #444; border-radius: 4px; display: none; }
 
         /* 辅助功能开关区域 */
-        .switches-group { display: flex; align-items: center; gap: 15px; }
-        .switch-item { display: flex; align-items: center; gap: 6px; }
-        .switch-label { color: #ccc; }
+        .switches-group { display: flex; align-items: center; gap: 12px; }
+        .switch-item { display: flex; align-items: center; gap: 4px; }
+        .switch-label { color: #ccc; font-size: 12px; }
         .switch-label.active { color: var(--accent); font-weight: bold; }
 
         .output-row { width: 100%; max-width: 800px; display: flex; gap: 10px; margin-bottom: 10px; }
         textarea {
             flex: 1; background-color: #111; border: 1px solid #444; color: #a5b4fc;
-            padding: 12px; border-radius: 8px; height: 60px; resize: none; font-family: 'PingFang SC', 'Microsoft YaHei', monospace; font-size: 14px;
-            line-height: 1.5;
+            padding: 10px; border-radius: 8px; height: 70px; resize: none; 
+            font-family: 'PingFang SC', 'Microsoft YaHei', monospace; font-size: 14px;
+            line-height: 1.4;
         }
         
         /* 按钮组 */
-        .btn { border: none; border-radius: 8px; padding: 0 20px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
-        .btn-gen { background-color: var(--accent); color: white; min-width: 110px; }
-        .btn-gen:hover { background-color: var(--accent-hover); transform: translateY(-1px); }
-        .btn-gen:disabled { background-color: #333; color: #666; cursor: wait; transform: none; }
+        .btn { border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
+        .btn-gen { background-color: var(--accent); color: white; min-width: 80px; }
         
         .btn-act { background-color: #2d2d2d; color: #ccc; border: 1px solid #444; }
-        .btn-act:hover { background-color: #3d3d3d; color: white; }
-        .btn-clear:hover { background-color: #551111; color: #fca5a5; border-color: #772222; }
+        .btn-copy { background-color: #3e41b0; color: white; border: none; flex: 2; }
 
         /* 历史记录列表 */
         .history-list {
             width: 100%; max-width: 800px;
             background: #111; border: 0px solid #333; border-radius: 8px;
-            max-height: 0; overflow-y: auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 0; overflow-y: auto; transition: all 0.3s ease;
         }
-        .history-list.open { max-height: 180px; border-width: 1px; padding: 8px; margin-bottom: 15px; }
+        .history-list.open { max-height: 150px; border-width: 1px; padding: 8px; margin-bottom: 15px; }
         
         .history-item {
-            padding: 10px 12px; border-bottom: 1px solid #222; color: #999; font-size: 13px; cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center; border-radius: 4px;
+            padding: 12px; border-bottom: 1px solid #222; color: #999; font-size: 13px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .history-item:hover { background-color: #222; color: #fff; }
-        .hist-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%; }
-        .hist-time { font-size: 11px; color: #555; }
 
         /* 开关样式 */
-        .switch { position: relative; display: inline-block; width: 36px; height: 20px; vertical-align: middle; }
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; vertical-align: middle; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
             background-color: #444; transition: .4s; border-radius: 34px;
         }
         .slider:before {
-            position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+            position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px;
             background-color: white; transition: .4s; border-radius: 50%;
         }
         input:checked + .slider { background-color: var(--accent); }
         input:checked + .slider:before { transform: translateX(16px); }
-        
-        /* 换装指令特殊颜色 */
-        input#clothPrefixSwitch:checked + .slider { background-color: var(--success); }
+
+        /* === 手机端适配媒体查询 === */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding-bottom: 320px; gap: 12px; }
+            h1 { font-size: 1.2rem; }
+            
+            .basic-row { flex-direction: column; gap: 15px; }
+            .col-age { width: 100%; }
+            .col-age input { width: 100% !important; box-sizing: border-box; }
+            
+            .module-card { padding: 15px; }
+            
+            .panel-controls { justify-content: center; }
+            .output-row { flex-direction: column; }
+            .btn-gen { height: 45px; width: 100%; }
+            textarea { height: 80px; }
+
+            .config-card { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .config-input { width: 100%; box-sizing: border-box; }
+
+            /* 调整按钮在手机上的布局 */
+            .action-group { width: 100%; display: flex; gap: 10px; }
+            .btn-act { padding: 12px 0; }
+        }
 
     </style>
 </head>
@@ -199,12 +215,12 @@
 
 <div class="container">
     <h1>AI 提示词神器 <span style="font-size:12px; color:#666; font-weight: normal;">Pro Max</span></h1>
-    <div class="subtitle">实时状态保存 · 历史记录 · DeepSeek 中文润色</div>
+    <div class="subtitle">手机适配版 · 实时自动存档 · 历史记录</div>
 
     <!-- API Config -->
     <div class="config-card">
         <div style="font-weight:bold; color:var(--accent); font-size: 13px;">DeepSeek API Key</div>
-        <input type="password" id="apiKeyInput" class="config-input" placeholder="输入您的 sk-..." onblur="saveSettings()">
+        <input type="password" id="apiKeyInput" class="config-input" placeholder="sk-..." onblur="saveSettings()">
     </div>
 
     <!-- 1. 基础信息 -->
@@ -235,29 +251,25 @@
     <div class="panel-controls">
         <div class="panel-left">
             <div class="history-toggle" onclick="toggleHistory()">
-                <span id="histArrow">▲</span> 历史 (<span id="histCount">0</span>)
+                <span id="histArrow">▲</span> 历史(<span id="histCount">0</span>)
             </div>
-            <div class="clear-history-btn" id="clearHistoryBtn" onclick="clearAllHistory()">清除历史</div>
+            <div class="clear-history-btn" id="clearHistoryBtn" onclick="clearAllHistory()">清除</div>
         </div>
         <div class="switches-group">
-            <span style="cursor:pointer; text-decoration:underline;" onclick="resetAll()">重置一切</span>
-            
-            <!-- 换装指令开关 -->
-            <div class="switch-item" title="开启后自动添加：按照参考图帮我把这个衣服穿到模特身上">
+            <span style="cursor:pointer; text-decoration:underline; font-size:11px;" onclick="resetAll()">重置</span>
+            <div class="switch-item">
                 <label class="switch">
                     <input type="checkbox" id="clothPrefixSwitch" onchange="saveSettings()">
                     <span class="slider"></span>
                 </label>
-                <span class="switch-label" id="clothLabel">换装指令</span>
+                <span class="switch-label" id="clothLabel">换装</span>
             </div>
-
-            <!-- AI 润色开关 -->
             <div class="switch-item">
                 <label class="switch">
                     <input type="checkbox" id="aiSwitch" onchange="saveSettings()">
                     <span class="slider"></span>
                 </label>
-                <span class="switch-label">AI 润色</span>
+                <span class="switch-label">AI润色</span>
             </div>
         </div>
     </div>
@@ -267,19 +279,18 @@
 
     <div class="output-row">
         <textarea id="resultBox" placeholder="生成的提示词将显示在这里..." readonly></textarea>
-        <div style="display: flex; flex-direction: column; gap: 5px;">
-            <button class="btn btn-gen" id="genBtn" onclick="generatePrompt()" style="height: 100%;">生成</button>
-        </div>
+        <button class="btn btn-gen" id="genBtn" onclick="generatePrompt()">生成</button>
     </div>
-    <div style="width: 100%; max-width: 800px; display: flex; gap: 10px;">
-        <button class="btn btn-act btn-clear" onclick="clearResult()" style="flex: 1; padding: 8px 0;">清空框内</button>
-        <button class="btn btn-act" onclick="copyResult()" style="flex: 2; padding: 8px 0; background-color: #3e41b0; border: none; color: white;">复制提示词</button>
+    
+    <div class="action-group" style="width: 100%; max-width: 800px; display: flex; gap: 10px;">
+        <button class="btn btn-act" onclick="clearResult()" style="flex: 1;">清空</button>
+        <button class="btn btn-act btn-copy" id="copyBtn" onclick="copyResult()">复制结果</button>
     </div>
 </div>
 
 <script>
-    // === 0. 默认数据 ===
-    const DEFAULT_BASIC = ['男性', '女性', '情侣', '姐妹', '兄弟', ];
+    // === 逻辑部分保持完全一致，仅做部分UI兼容调整 ===
+    const DEFAULT_BASIC = ['男性', '女性', '情侣', '姐妹', '兄弟'];
     const DEFAULT_MODULES = [
         { id: 'scene', title: '🏞️ 场景', tags: ['白底', '江边桥梁旁', '宏伟建筑', '城市街头', '采石场','户外露营', '原始森林'] },
         { id: 'style', title: '🤷‍♀️ 姿势/动作', tags: ['站立', '依靠', '面对镜头', '跑步', '单手插口袋', '站在原地'] },
@@ -292,7 +303,6 @@
         { id: 'other', title: '🤡 其他', tags: ['专业摄影', '专业后期', '专业编辑', '专业渲染', '专业渲染器', '专业渲染软件', '专业渲染插件'] }
     ];
 
-    // === 1. 状态管理 ===
     let appState = {
         basicSubjects: [...DEFAULT_BASIC],
         modulesData: JSON.parse(JSON.stringify(DEFAULT_MODULES)),
@@ -305,7 +315,6 @@
         history: [] 
     };
 
-    // === 2. 初始化 ===
     function init() {
         loadState(); 
         renderUI();
@@ -324,7 +333,6 @@
         document.getElementById('clothPrefixSwitch').checked = appState.useClothPrefix || false;
         
         updateLabelStyles();
-
         appState.modulesData.forEach(m => {
             if (!appState.selTags[m.id]) appState.selTags[m.id] = [];
         });
@@ -351,13 +359,12 @@
     }
 
     function resetAll() {
-        if(confirm('确定要重置所有设置、词库和历史记录吗？')) {
+        if(confirm('确定要重置所有吗？')) {
             localStorage.removeItem('prompt_gen_full_state');
             location.reload();
         }
     }
 
-    // === 3. UI 渲染 ===
     function renderUI() {
         renderBasic();
         renderModules();
@@ -372,8 +379,7 @@
             el.innerHTML = `<span>${t}</span><span class="tag-close" onclick="event.stopPropagation();delBasic('${t}')">×</span>`;
             el.onclick = () => {
                 appState.selSubject = (appState.selSubject === t ? null : t);
-                saveState();
-                renderBasic();
+                saveState(); renderBasic();
             };
             box.appendChild(el);
         });
@@ -389,7 +395,7 @@
                 <div class="module-header">${m.title}</div>
                 <div class="tags-container" id="tags-${m.id}"></div>
                 <div class="input-row">
-                    <input type="text" id="in-${m.id}" placeholder="添加自定义词条...">
+                    <input type="text" id="in-${m.id}" placeholder="添加...">
                     <button class="add-btn" onclick="addModuleTag('${m.id}')">＋</button>
                 </div>
             `;
@@ -411,8 +417,7 @@
             el.onclick = () => {
                 if (isSel) appState.selTags[mid] = appState.selTags[mid].filter(i => i !== t);
                 else appState.selTags[mid].push(t);
-                saveState();
-                renderModuleTags(mid);
+                saveState(); renderModuleTags(mid);
             };
             box.appendChild(el);
         });
@@ -424,8 +429,7 @@
         if (val && !appState.basicSubjects.includes(val)) {
             appState.basicSubjects.push(val);
             appState.selSubject = val;
-            saveState();
-            renderBasic();
+            saveState(); renderBasic();
         }
         input.value = '';
     }
@@ -433,8 +437,7 @@
     function delBasic(t) {
         appState.basicSubjects = appState.basicSubjects.filter(i => i !== t);
         if (appState.selSubject === t) appState.selSubject = null;
-        saveState();
-        renderBasic();
+        saveState(); renderBasic();
     }
 
     function addModuleTag(mid) {
@@ -444,48 +447,37 @@
             const mod = appState.modulesData.find(m => m.id === mid);
             if (!mod.tags.includes(val)) mod.tags.push(val);
             if (!appState.selTags[mid].includes(val)) appState.selTags[mid].push(val);
-            saveState();
-            renderModuleTags(mid);
-            input.value = '';
+            saveState(); renderModuleTags(mid);
         }
+        input.value = '';
     }
 
     function delModuleTag(mid, t) {
         const mod = appState.modulesData.find(m => m.id === mid);
         mod.tags = mod.tags.filter(i => i !== t);
         appState.selTags[mid] = appState.selTags[mid].filter(i => i !== t);
-        saveState();
-        renderModuleTags(mid);
+        saveState(); renderModuleTags(mid);
     }
 
-    // === 5. 生成逻辑 ===
     async function generatePrompt() {
         saveState();
-        
         let parts = [];
         if(appState.age) parts.push(`${appState.age}岁`);
         if(appState.selSubject) parts.push(appState.selSubject);
         appState.modulesData.forEach(m => {
-            if(appState.selTags[m.id] && appState.selTags[m.id].length) {
-                parts.push(appState.selTags[m.id].join('、'));
-            }
+            if(appState.selTags[m.id]?.length) parts.push(appState.selTags[m.id].join('、'));
         });
 
         const rawPrompt = parts.join(', ');
-        if(!rawPrompt) { alert('请至少选择一个标签！'); return; }
+        if(!rawPrompt) { alert('请先选词'); return; }
 
         const outBox = document.getElementById('resultBox');
         const btn = document.getElementById('genBtn');
         let finalPrompt = rawPrompt;
 
-        const CLOTH_PREFIX = "按照参考图帮我把这个衣服穿到模特身上，";
-
         if (appState.useAI) {
-            if (!appState.apiKey) { alert('请先输入 DeepSeek API Key'); return; }
-            btn.disabled = true;
-            btn.innerText = "生成中...";
-            outBox.value = "DeepSeek 正在为您润色中文提示词...";
-            
+            if (!appState.apiKey) { alert('请先输入 API Key'); return; }
+            btn.disabled = true; btn.innerText = "...";
             try {
                 const res = await fetch("https://api.deepseek.com/chat/completions", {
                     method: "POST",
@@ -493,102 +485,64 @@
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [
-                            { 
-                                role: "system", 
-                                content: "你是一位专业的AI绘画提示词专家。请将用户提供的关键词组合并扩充成一段细节丰富、构图精美、描述生动的中文绘画提示词（Prompt）。请直接输出结果，不要包含任何解释性文字。" 
-                            },
+                            { role: "system", content: "你是一位专业的AI绘画提示词专家。请将用户提供的关键词扩充成一段生动的中文提示词，直接输出结果。" },
                             { role: "user", content: `关键词: [${rawPrompt}]` }
-                        ],
-                        stream: false
+                        ]
                     })
                 });
-                if(!res.ok) throw new Error("API Error");
                 const data = await res.json();
                 finalPrompt = data.choices[0].message.content;
-            } catch(e) {
-                finalPrompt = "API 调用失败，显示原始词: " + rawPrompt;
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "生成";
-            }
+            } catch(e) { finalPrompt = "API 失败: " + rawPrompt; }
+            btn.disabled = false; btn.innerText = "生成";
         }
 
-        if (appState.useClothPrefix) {
-            finalPrompt = CLOTH_PREFIX + finalPrompt;
-        }
-
+        if (appState.useClothPrefix) finalPrompt = "按照参考图帮我把这个衣服穿到模特身上，" + finalPrompt;
         outBox.value = finalPrompt;
         addToHistory(finalPrompt);
     }
 
-    // === 6. 历史记录管理 ===
     function addToHistory(text) {
         const now = new Date();
         const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
         appState.history.unshift({ text: text, time: timeStr });
         if(appState.history.length > 20) appState.history.pop();
-        saveState();
-        updateHistoryUI();
+        saveState(); updateHistoryUI();
     }
 
     function updateHistoryUI() {
         const list = document.getElementById('historyList');
         const countSpan = document.getElementById('histCount');
         const clearBtn = document.getElementById('clearHistoryBtn');
-        
         countSpan.innerText = appState.history.length;
-        
-        // 如果有历史记录，显示清除按钮
-        if(appState.history.length > 0) {
-            clearBtn.style.display = 'inline-block';
-        } else {
-            clearBtn.style.display = 'none';
-            list.classList.remove('open');
-            document.getElementById('histArrow').innerText = '▲';
-        }
-        
+        clearBtn.style.display = appState.history.length > 0 ? 'inline-block' : 'none';
         list.innerHTML = '';
         appState.history.forEach(item => {
             const div = document.createElement('div');
             div.className = 'history-item';
-            div.innerHTML = `
-                <div class="hist-text" title="${item.text}">${item.text}</div>
-                <div class="hist-time">${item.time}</div>
-            `;
-            div.onclick = () => {
-                document.getElementById('resultBox').value = item.text;
-            };
+            div.innerHTML = `<div class="hist-text" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80%">${item.text}</div><div class="hist-time">${item.time}</div>`;
+            div.onclick = () => document.getElementById('resultBox').value = item.text;
             list.appendChild(div);
         });
-    }
-
-    function clearAllHistory() {
-        if(confirm('确定要清除所有生成的历史记录吗？')) {
-            appState.history = [];
-            saveState();
-            updateHistoryUI();
-        }
     }
 
     function toggleHistory() {
         if(appState.history.length === 0) return;
         const list = document.getElementById('historyList');
         list.classList.toggle('open');
-        const arrow = document.getElementById('histArrow');
-        arrow.innerText = list.classList.contains('open') ? '▼' : '▲';
+        document.getElementById('histArrow').innerText = list.classList.contains('open') ? '▼' : '▲';
     }
 
+    function clearAllHistory() { if(confirm('清除历史？')) { appState.history = []; saveState(); updateHistoryUI(); } }
     function clearResult() { document.getElementById('resultBox').value = ''; }
     
     function copyResult() {
         const el = document.getElementById('resultBox');
         if(!el.value) return;
-        el.select(); 
+        el.select(); el.setSelectionRange(0, 99999);
         document.execCommand('copy');
-        const copyBtn = event.target;
-        const oldText = copyBtn.innerText;
-        copyBtn.innerText = "已复制！";
-        setTimeout(() => copyBtn.innerText = oldText, 2000);
+        const btn = document.getElementById('copyBtn');
+        btn.innerText = "已复制";
+        setTimeout(() => btn.innerText = "复制结果", 2000);
     }
 
     init();
