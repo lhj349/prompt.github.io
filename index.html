@@ -7,223 +7,148 @@
     <title>AI 提示词神器 (全功能定制版)</title>
     <style>
         :root {
-            /* 增强对比度变量 */
-            --bg-color: #0a0a0c;
-            --card-bg: #16161a;
-            --text-main: #f0f0f5;
-            --text-sub: #a1a1aa;
-            --accent: #6366f1;
-            --accent-hover: #818cf8;
-            --border: #27272a;
-            --tag-bg: #222226;
-            --tag-selected: #6366f1;
-            --input-bg: #09090b;
-            --panel-bg: rgba(10, 10, 12, 0.98);
-            --success: #10b981;
-            --danger: #ef4444;
+            --bg-color: #0a0a0c; --card-bg: #16161a; --text-main: #f0f0f5; --text-sub: #a1a1aa;
+            --accent: #6366f1; --accent-hover: #818cf8; --border: #27272a; --tag-bg: #222226;
+            --tag-selected: #6366f1; --input-bg: #09090b; --panel-bg: rgba(10, 10, 12, 0.98);
+            --success: #10b981; --danger: #ef4444;
         }
-
         body.light-theme {
-            --bg-color: #f4f4f5;
-            --card-bg: #ffffff;
-            --text-main: #18181b;
-            --text-sub: #52525b;
-            --accent: #4f46e5;
-            --accent-hover: #6366f1;
-            --border: #e4e4e7;
-            --tag-bg: #f1f1f4;
-            --tag-selected: #4f46e5;
-            --input-bg: #ffffff;
-            --panel-bg: rgba(255, 255, 255, 0.98);
+            --bg-color: #f4f4f5; --card-bg: #ffffff; --text-main: #18181b; --text-sub: #52525b;
+            --accent: #4f46e5; --accent-hover: #6366f1; --border: #e4e4e7; --tag-bg: #f1f1f4;
+            --tag-selected: #4f46e5; --input-bg: #ffffff; --panel-bg: rgba(255, 255, 255, 0.98);
         }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0; padding: 12px;
-            display: flex; justify-content: center;
-            transition: background-color 0.2s;
-            -webkit-tap-highlight-color: transparent;
-            font-size: 14px;
-            line-height: 1.5;
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0; padding: 12px; display: flex; justify-content: center;
+            transition: background-color 0.2s; -webkit-tap-highlight-color: transparent;
+            font-size: 14px; line-height: 1.5;
         }
-
-        .container {
-            width: 100%; max-width: 800px;
-            display: flex; flex-direction: column; gap: 16px;
-            padding-bottom: var(--panel-height, 300px);
+        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 16px; padding-bottom: var(--panel-height, 300px); }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; position: relative; }
+        h1 { margin: 0; color: var(--accent); font-size: 1.4rem; letter-spacing: -0.5px; }
+        .settings-toggle { 
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; 
+            border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); 
+            cursor: pointer; font-size: 18px; transition: 0.3s;
         }
-
-        h1 { text-align: center; margin: 8px 0 2px; color: var(--accent); font-size: 1.5rem; letter-spacing: -0.5px; }
-        .subtitle { text-align: center; color: var(--text-sub); font-size: 12px; margin-bottom: 8px; }
-
-        /* 顶部工具栏 */
-        .top-toolbar { display: flex; justify-content: space-between; gap: 10px; }
-        .btn-small { 
-            background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border); 
-            padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;
-            font-weight: 500;
+        .settings-dropdown {
+            position: absolute; top: 45px; right: 0; width: 260px;
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px; z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none;
+            transform-origin: top right; animation: scaleIn 0.2s ease;
         }
-
-        /* 模块卡片 */
-        .module-card {
-            background-color: var(--card-bg); border-radius: 12px; padding: 16px; 
-            border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .module-header { 
-            font-size: 15px; font-weight: 700; margin-bottom: 12px; 
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .module-del { color: var(--danger); font-size: 11px; font-weight: normal; cursor: pointer; padding: 4px; }
-
-        /* 分类页签管理 */
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .settings-dropdown.open { display: block; }
+        .settings-item label { display: block; font-size: 11px; color: var(--text-sub); margin-bottom: 6px; }
+        .mode-switcher { display: flex; background: var(--card-bg); border: 1px solid var(--border); padding: 4px; border-radius: 12px; margin-bottom: 4px; }
+        .mode-btn { flex: 1; padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-sub); }
+        .mode-btn.active { background: var(--accent); color: white; }
+        .module-card { background-color: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .module-header { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .module-del { color: var(--danger); font-size: 11px; font-weight: normal; cursor: pointer; }
         .category-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .cat-tab { 
-            font-size: 11px; padding: 4px 10px; border-radius: 6px; 
-            background: var(--tag-bg); color: var(--text-sub); cursor: pointer; 
-            border: 1px solid var(--border); display: flex; align-items: center; gap: 4px;
-        }
+        .cat-tab { font-size: 11px; padding: 4px 10px; border-radius: 6px; background: var(--tag-bg); color: var(--text-sub); cursor: pointer; border: 1px solid var(--border); }
         .cat-tab.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: 600; }
-        .cat-del { font-size: 14px; opacity: 0.7; padding-left: 2px; }
-        .cat-del:hover { color: #ffcccc; }
-        .cat-add-btn { color: var(--accent); font-weight: bold; border-style: dashed; }
-
-        /* 标签 */
         .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-        .tag {
-            background-color: var(--tag-bg); border: 1px solid var(--border);
-            padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
-        }
+        .tag { background-color: var(--tag-bg); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
         .tag.active { background-color: var(--tag-selected); color: white; border-color: var(--tag-selected); }
         .tag-close { font-size: 16px; opacity: 0.6; }
-
-        input[type="text"], input[type="number"], input[type="password"] {
-            background-color: var(--input-bg); border: 1px solid var(--border); color: var(--text-main);
-            padding: 10px; border-radius: 8px; outline: none; font-size: 14px; width: 100%; box-sizing: border-box;
-        }
-        input:focus { border-color: var(--accent); }
-
-        /* 底部控制面板 */
-        .bottom-panel {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background-color: var(--panel-bg); border-top: 1px solid var(--border);
-            z-index: 100; display: flex; flex-direction: column;
-            backdrop-filter: blur(16px); height: var(--panel-height, 280px);
-        }
-
+        input[type="text"], input[type="number"], input[type="password"] { background-color: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 8px; outline: none; font-size: 14px; width: 100%; box-sizing: border-box; }
+        .bottom-panel { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--panel-bg); border-top: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; backdrop-filter: blur(16px); height: var(--panel-height, 280px); }
         .resize-handle { width: 100%; height: 16px; cursor: ns-resize; display: flex; justify-content: center; align-items: center; }
         .resize-handle::after { content: ""; width: 40px; height: 5px; background: var(--border); border-radius: 3px; }
-
-        .panel-inner { flex: 1; display: flex; flex-direction: column; padding: 0 16px 12px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden; }
-
+        .panel-inner { flex: 1; display: flex; flex-direction: column; padding: 0 16px 12px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
         .toggle-group { display: flex; gap: 8px; margin-bottom: 10px; }
-        .btn-toggle {
-            flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600;
-            text-align: center; border: 1px solid var(--border); background: var(--tag-bg); color: var(--text-sub);
-            cursor: pointer;
-        }
-        .btn-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
-
-        textarea {
-            flex: 1; background-color: var(--input-bg); border: 1px solid var(--border);
-            color: var(--accent); padding: 12px; border-radius: 10px; margin-bottom: 10px;
-            font-size: 14px; resize: none; line-height: 1.5; font-family: inherit;
-        }
-
+        .btn-toggle { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; text-align: center; border: 1px solid var(--border); background: var(--tag-bg); color: var(--text-sub); cursor: pointer; }
+        .btn-toggle.active { background: var(--accent); color: white; }
+        textarea { flex: 1; background-color: var(--input-bg); border: 1px solid var(--border); color: var(--accent); padding: 12px; border-radius: 10px; margin-bottom: 10px; font-size: 14px; resize: none; line-height: 1.5; font-family: inherit; }
         .main-actions { display: flex; gap: 8px; width: 100%; }
-        .btn { 
-            flex: 1; border: none; border-radius: 10px; padding: 12px 0; 
-            font-weight: 700; font-size: 13px; cursor: pointer; text-align: center;
-            display: flex; align-items: center; justify-content: center; gap: 4px;
-        }
+        .btn { flex: 1; border: none; border-radius: 10px; padding: 12px 0; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
         .btn-clear { background: var(--tag-bg); color: var(--text-main); border: 1px solid var(--border); flex: 0.6; }
-        .btn-random { background-color: var(--success); color: white; }
         .btn-gen { background-color: var(--accent); color: white; flex: 1.2; }
         .btn-copy { background-color: var(--accent); color: white; }
-
-        .history-list {
-            background: var(--tag-bg); border: 1px solid var(--border); border-radius: 10px;
-            margin-bottom: 8px; overflow-y: auto; display: none; max-height: 90px;
-        }
+        .history-list { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow-y: auto; display: none; max-height: 90px; }
         .history-list.open { display: block; }
-        .history-item { padding: 10px; border-bottom: 1px solid var(--border); font-size: 12px; display: flex; justify-content: space-between; }
-
-        @media (max-width: 480px) {
-            h1 { font-size: 1.3rem; }
-            .btn span { display: none; } /* 极窄屏幕隐藏按钮文字 */
-            .btn { font-size: 14px; }
-        }
+        .history-item { padding: 10px; border-bottom: 1px solid var(--border); font-size: 12px; display: flex; justify-content: space-between; cursor: pointer; }
+        @media (max-width: 480px) { h1 { font-size: 1.2rem; } .btn span { display: none; } }
     </style>
 </head>
 <body class="dark-theme">
 
 <div class="container">
-    <h1>AI 提示词神器</h1>
-    <div class="subtitle">全自动存档 · 深度自定义 · 手机适配</div>
-
-    <div class="top-toolbar">
-        <div style="display: flex; gap: 6px;">
-            <button class="btn-small" onclick="exportData()">导出</button>
-            <button class="btn-small" onclick="document.getElementById('importFile').click()">导入</button>
-            <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+    <div class="header-bar">
+        <div>
+            <h1>AI 提示词神器</h1>
+            <div style="font-size: 11px; color: var(--text-sub);">全自动存档 · 回车快速添加</div>
         </div>
-        <div style="display: flex; gap: 6px;">
-            <button class="btn-small" onclick="toggleTheme()" id="themeBtn">☀️ 模式切换</button>
-            <button class="btn-small" onclick="resetAll()" style="color:var(--danger)">重置</button>
+        <div class="settings-toggle" onclick="toggleSettingsPanel(event)">⚙️</div>
+        <div class="settings-dropdown" id="settingsDropdown">
+            <div class="settings-item">
+                <label>DeepSeek API Key</label>
+                <!-- 增加回车保存监听 -->
+                <input type="password" id="apiKeyInput" placeholder="输入后按回车保存" 
+                       onkeydown="if(event.key==='Enter') { saveSettings(); document.getElementById('settingsDropdown').classList.remove('open'); }"
+                       onblur="saveSettings()">
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button class="btn-small" onclick="toggleTheme()" id="themeBtn" style="flex:1">☀️ 主题</button>
+                <button class="btn-small" onclick="resetAll()" style="color:var(--danger); flex:1">重置</button>
+            </div>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+                <button class="btn-small" onclick="exportData()" style="flex:1">导出</button>
+                <button class="btn-small" onclick="document.getElementById('importFile').click()" style="flex:1">导入</button>
+                <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+            </div>
         </div>
     </div>
 
-    <div class="module-card">
-        <div class="module-header" style="font-size: 13px; margin-bottom: 8px;">API 设置</div>
-        <input type="password" id="apiKeyInput" placeholder="DeepSeek API Key" onblur="saveSettings()">
+    <div class="mode-switcher">
+        <div class="mode-btn active" id="mode-char" onclick="switchMode('character')">👤 角色模式</div>
+        <div class="mode-btn" id="mode-prod" onclick="switchMode('product')">🎁 产品模式</div>
     </div>
 
-    <!-- 基础信息模块 -->
     <div class="module-card">
-        <div class="module-header">基础角色信息</div>
+        <div class="module-header" id="basicTitle">主体信息</div>
         <div style="display: flex; gap: 10px; align-items: flex-start;">
-            <div style="width: 60px;">
+            <div id="ageBox" style="width: 60px;">
                 <input type="number" id="ageInput" placeholder="年龄" oninput="saveState()">
             </div>
             <div style="flex: 1;">
                 <div class="tags-container" id="basicTags"></div>
                 <div style="display:flex; gap:6px;">
-                    <input type="text" id="basicInput" placeholder="输入主体词...">
+                    <!-- 增加回车添加监听 -->
+                    <input type="text" id="basicInput" placeholder="输入主体词后按回车..." 
+                           onkeydown="if(event.key==='Enter') addBasicTag()">
                     <button class="btn-small" onclick="addBasicTag()" style="padding:0 15px;">＋</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 动态模块渲染区 -->
     <div id="dynamicModules" style="display: flex; flex-direction: column; gap: 16px;"></div>
 
-    <div style="border: 2px dashed var(--border); border-radius: 12px; padding: 18px; text-align: center; color: var(--text-sub); font-size: 14px; font-weight: 500;" onclick="addNewModule()">
-        ＋ 点击添加自定义词库模块 (如: 动作、光影、材质)
+    <div style="border: 2px dashed var(--border); border-radius: 12px; padding: 18px; text-align: center; color: var(--text-sub); font-size: 13px; cursor: pointer;" onclick="addNewModule()">
+        ＋ 添加自定义词库分类
     </div>
 </div>
 
 <div class="bottom-panel" id="bottomPanel">
     <div class="resize-handle" id="resizeHandle"></div>
     <div class="panel-inner">
-        <div style="display:flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin-bottom: 8px; font-weight: 600;">
-            <span onclick="toggleHistory()" style="cursor:pointer">🕒 历史记录 (<span id="histCount">0</span>)</span>
+        <div style="display:flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin-bottom: 8px;">
+            <span onclick="toggleHistory()" style="cursor:pointer">🕒 历史 (<span id="histCount">0</span>)</span>
             <span onclick="clearAllHistory()" style="cursor:pointer">清空</span>
         </div>
         <div class="history-list" id="historyList"></div>
-
         <div class="toggle-group">
             <div class="btn-toggle" id="aiToggle" onclick="toggleBtnState('useAI')">AI 润色: OFF</div>
-            <div class="btn-toggle" id="clothToggle" onclick="toggleBtnState('useCloth')">换装模式: OFF</div>
+            <div class="btn-toggle" id="specialToggle" onclick="toggleBtnState('useSpecial')">换装参考: OFF</div>
         </div>
-
-        <textarea id="resultBox" placeholder="选好词后点击生成..."></textarea>
-        
+        <textarea id="resultBox" placeholder="选好标签后点击生成..."></textarea>
         <div class="main-actions">
             <button class="btn btn-clear" onclick="clearResult()">清空</button>
-            <button class="btn btn-random" onclick="randomSelect()">🎲<span>随机</span></button>
             <button class="btn btn-gen" id="genBtn" onclick="generatePrompt()">🚀<span>生成词</span></button>
             <button class="btn btn-copy" id="copyBtn" onclick="copyResult()">📋<span>复制</span></button>
         </div>
@@ -231,291 +156,144 @@
 </div>
 
 <script>
-    // 初始演示数据
-    const INITIAL_MODULES = [
-        { id: 'scene', title: '🏞️ 场景', activeCat: 0, categories: [{ name: '户外', tags: ['森林', '海滩', '赛博街头'] }, { name: '室内', tags: ['图书馆', '实验室'] }] },
-        { id: 'camera', title: '📷 镜头', activeCat: 0, categories: [{ name: '角度', tags: ['特写', '俯拍', '侧拍'] }, { name: '风格', tags: ['胶片感', '电影质感'] }] }
-    ];
-
     let appState = {
-        theme: 'dark', panelHeight: 280,
-        basicSubjects: ['男性', '女性', '少女', '正太'],
-        modulesData: JSON.parse(JSON.stringify(INITIAL_MODULES)),
-        selSubject: null, selTags: {}, 
-        age: '', apiKey: '', useAI: false, useCloth: false, history: []
+        mode: 'character', theme: 'dark', panelHeight: 280, age: '', apiKey: '', useAI: false, history: [],
+        charData: { subjects: ['少女', '男性'], modules: [], selSubject: null, selTags: {}, useSpecial: false },
+        prodData: { subjects: ['护肤品', '运动鞋'], modules: [], selSubject: null, selTags: {}, useSpecial: false }
     };
 
     function init() {
-        const saved = localStorage.getItem('prompt_v6_state');
+        const saved = localStorage.getItem('prompt_v9_state');
         if (saved) appState = { ...appState, ...JSON.parse(saved) };
-        
-        updateUIThemes();
-        renderBasic();
-        renderModules();
-        updateHistoryUI();
-        updateToggleButtons();
-        
+        if (!appState.charData.modules.length) appState.charData.modules = [{ id: 'scene', title: '🏞️ 场景', activeCat: 0, categories: [{ name: '户外', tags: ['森林'] }] }];
+        if (!appState.prodData.modules.length) appState.prodData.modules = [{ id: 'surf', title: '🧱 材质', activeCat: 0, categories: [{ name: '底座', tags: ['大理石'] }] }];
+        updateUIThemes(); refreshModeUI(); updateHistoryUI(); updateToggleButtons();
         document.getElementById('apiKeyInput').value = appState.apiKey || '';
         document.getElementById('ageInput').value = appState.age || '';
         document.documentElement.style.setProperty('--panel-height', appState.panelHeight + 'px');
-        
         initResize();
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('settingsDropdown');
+            if (!dropdown.contains(e.target) && !e.target.closest('.settings-toggle')) dropdown.classList.remove('open');
+        });
     }
 
-    // --- 数据存储 ---
-    function saveState() {
-        appState.age = document.getElementById('ageInput').value;
-        localStorage.setItem('prompt_v6_state', JSON.stringify(appState));
+    function switchMode(m) {
+        appState.mode = m;
+        document.getElementById('mode-char').classList.toggle('active', m === 'character');
+        document.getElementById('mode-prod').classList.toggle('active', m === 'product');
+        refreshModeUI(); updateToggleButtons(); saveState();
     }
 
-    function saveSettings() {
-        appState.apiKey = document.getElementById('apiKeyInput').value.trim();
-        saveState();
+    function refreshModeUI() {
+        const data = appState.mode === 'character' ? appState.charData : appState.prodData;
+        document.getElementById('basicTitle').innerText = appState.mode === 'character' ? '基础角色' : '产品主体';
+        document.getElementById('ageBox').style.display = appState.mode === 'character' ? 'block' : 'none';
+        renderBasic(); renderModules();
     }
 
-    // --- 分类与页签管理 ---
-    function setCat(mid, i) { 
-        const m = appState.modulesData.find(x => x.id === mid); 
-        m.activeCat = i; renderModules(); saveState(); 
-    }
-    
-    function addCat(mid) {
-        const n = prompt("请输入新分类名称 (如: 夏日、黑白、幻想):");
-        if(n) {
-            const m = appState.modulesData.find(x => x.id === mid);
-            m.categories.push({name: n, tags: []});
-            m.activeCat = m.categories.length - 1;
-            renderModules(); saveState();
-        }
+    function renderBasic() {
+        const data = appState.mode === 'character' ? appState.charData : appState.prodData;
+        document.getElementById('basicTags').innerHTML = data.subjects.map(t => `<div class="tag ${data.selSubject === t ? 'active' : ''}" onclick="selectBasic('${t}')">${t} <span class="tag-close" onclick="event.stopPropagation();delBasic('${t}')">×</span></div>`).join('');
     }
 
-    function deleteCat(mid, idx) {
-        const m = appState.modulesData.find(x => x.id === mid);
-        if(m.categories.length <= 1) return alert("至少保留一个分类");
-        if(confirm(`确定删除分类 [${m.categories[idx].name}] 及其所有词汇吗？`)) {
-            m.categories.splice(idx, 1);
-            m.activeCat = 0;
-            renderModules(); saveState();
-        }
+    function renderModules() {
+        const data = appState.mode === 'character' ? appState.charData : appState.prodData;
+        document.getElementById('dynamicModules').innerHTML = data.modules.map(m => `
+            <div class="module-card">
+                <div class="module-header">${m.title} <span class="module-del" onclick="deleteModule('${m.id}')">删除</span></div>
+                <div class="category-bar">${m.categories.map((c, i) => `<div class="cat-tab ${m.activeCat === i ? 'active' : ''}" onclick="setCat('${m.id}', ${i})">${c.name}</div>`).join('')}<div class="cat-tab" onclick="addCat('${m.id}')">＋</div></div>
+                <div class="tags-container">${m.categories[m.activeCat].tags.map(t => `<div class="tag ${(data.selTags[m.id]||[]).includes(t) ? 'active' : ''}" onclick="toggleTag('${m.id}','${t}')">${t} <span class="tag-close" onclick="event.stopPropagation();delTag('${m.id}','${t}')">×</span></div>`).join('')}</div>
+                <div style="display:flex; gap:8px;">
+                    <!-- 在渲染出的 input 中也增加回车监听 -->
+                    <input type="text" id="in-${m.id}" placeholder="输入词后回车..." onkeydown="if(event.key==='Enter') addTag('${m.id}')">
+                    <button class="btn-small" onclick="addTag('${m.id}')">＋</button>
+                </div>
+            </div>
+        `).join('');
     }
 
-    // --- 标签与模块逻辑 ---
-    function toggleTag(mid, t) {
-        if(!appState.selTags[mid]) appState.selTags[mid] = [];
-        if(appState.selTags[mid].includes(t)) {
-            appState.selTags[mid] = appState.selTags[mid].filter(x => x !== t);
-        } else {
-            appState.selTags[mid].push(t);
-        }
-        renderModules(); saveState();
+    function addBasicTag() {
+        const v = document.getElementById('basicInput').value.trim();
+        const data = appState.mode === 'character' ? appState.charData : appState.prodData;
+        if(v && !data.subjects.includes(v)) { data.subjects.push(v); document.getElementById('basicInput').value = ''; renderBasic(); saveState(); }
     }
 
     function addTag(mid) {
         const v = document.getElementById(`in-${mid}`).value.trim();
-        if(v) {
-            const m = appState.modulesData.find(x => x.id === mid);
-            if(!m.categories[m.activeCat].tags.includes(v)) {
-                m.categories[m.activeCat].tags.push(v);
-            }
-            if(!appState.selTags[mid]) appState.selTags[mid] = [];
-            if(!appState.selTags[mid].includes(v)) appState.selTags[mid].push(v);
-            document.getElementById(`in-${mid}`).value = '';
-            renderModules(); saveState();
-        }
+        if(!v) return;
+        const data = appState.mode === 'character' ? appState.charData : appState.prodData;
+        const m = data.modules.find(x => x.id === mid);
+        if(!m.categories[m.activeCat].tags.includes(v)) { m.categories[m.activeCat].tags.push(v); renderModules(); saveState(); }
     }
 
-    function delTag(mid, t) {
-        const m = appState.modulesData.find(x => x.id === mid);
-        m.categories[m.activeCat].tags = m.categories[m.activeCat].tags.filter(x => x !== t);
-        if(appState.selTags[mid]) {
-            appState.selTags[mid] = appState.selTags[mid].filter(x => x !== t);
-        }
-        renderModules(); saveState();
+    function toggleBtnState(key) {
+        if(key === 'useAI') appState.useAI = !appState.useAI;
+        else { const data = appState.mode === 'character' ? appState.charData : appState.prodData; data.useSpecial = !data.useSpecial; }
+        updateToggleButtons(); saveState();
     }
 
-    function addNewModule() {
-        const t = prompt("请输入新词库模块名称 (如: 💡 灯光):");
-        if(t) {
-            appState.modulesData.push({ id: 'm'+Date.now(), title: t, activeCat: 0, categories: [{name:'默认', tags:[]}] });
-            renderModules(); saveState();
-        }
-    }
-
-    function deleteModule(id) {
-        if(confirm("确定彻底删除这个模块吗？")) {
-            appState.modulesData = appState.modulesData.filter(x => x.id !== id);
-            delete appState.selTags[id];
-            renderModules(); saveState();
-        }
-    }
-
-    // --- 随机逻辑 ---
-    function randomSelect() {
-        appState.selSubject = appState.basicSubjects[Math.floor(Math.random() * appState.basicSubjects.length)];
-        appState.selTags = {};
-        appState.modulesData.forEach(mod => {
-            const rCatIdx = Math.floor(Math.random() * mod.categories.length);
-            const cat = mod.categories[rCatIdx];
-            if (cat.tags.length > 0) {
-                appState.selTags[mod.id] = [cat.tags[Math.floor(Math.random() * cat.tags.length)]];
-                mod.activeCat = rCatIdx;
-            }
-        });
-        renderBasic(); renderModules(); generatePrompt();
-    }
-
-    // --- 渲染渲染 ---
-    function renderBasic() {
-        const box = document.getElementById('basicTags');
-        box.innerHTML = appState.basicSubjects.map(t => `
-            <div class="tag ${appState.selSubject === t ? 'active' : ''}" onclick="selectBasic('${t}')">
-                ${t} <span class="tag-close" onclick="event.stopPropagation();delBasic('${t}')">×</span>
-            </div>
-        `).join('');
-    }
-
-    function renderModules() {
-        const container = document.getElementById('dynamicModules');
-        container.innerHTML = appState.modulesData.map(m => `
-            <div class="module-card">
-                <div class="module-header">${m.title} <span class="module-del" onclick="deleteModule('${m.id}')">删除模块</span></div>
-                <div class="category-bar">
-                    ${m.categories.map((c, i) => `
-                        <div class="cat-tab ${m.activeCat === i ? 'active' : ''}" onclick="setCat('${m.id}', ${i})">
-                            ${c.name}
-                            <span class="cat-del" onclick="event.stopPropagation();deleteCat('${m.id}', ${i})">×</span>
-                        </div>
-                    `).join('')}
-                    <div class="cat-tab cat-add-btn" onclick="addCat('${m.id}')">＋ 新分类</div>
-                </div>
-                <div class="tags-container">
-                    ${m.categories[m.activeCat].tags.map(t => `
-                        <div class="tag ${(appState.selTags[m.id]||[]).includes(t) ? 'active' : ''}" onclick="toggleTag('${m.id}','${t}')">
-                            ${t} <span class="tag-close" onclick="event.stopPropagation();delTag('${m.id}','${t}')">×</span>
-                        </div>
-                    `).join('')}
-                </div>
-                <div style="display:flex; gap:8px;">
-                    <input type="text" id="in-${m.id}" placeholder="添加新标签...">
-                    <button class="btn-small" onclick="addTag('${m.id}')" style="flex:none;">添加</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // --- 基础操作 ---
-    function selectBasic(t) { appState.selSubject = (appState.selSubject === t ? null : t); saveState(); renderBasic(); }
-    function delBasic(t) { appState.basicSubjects = appState.basicSubjects.filter(i => i !== t); saveState(); renderBasic(); }
-    function addBasicTag() {
-        const v = document.getElementById('basicInput').value.trim();
-        if(v && !appState.basicSubjects.includes(v)) appState.basicSubjects.push(v);
-        document.getElementById('basicInput').value = ''; renderBasic(); saveState();
-    }
-
-    // --- 模式切换与生成 ---
-    function toggleBtnState(key) { appState[key] = !appState[key]; updateToggleButtons(); saveState(); }
     function updateToggleButtons() {
-        const ai = document.getElementById('aiToggle');
-        ai.className = `btn-toggle ${appState.useAI ? 'active' : ''}`;
-        ai.innerText = `AI 润色: ${appState.useAI ? 'ON' : 'OFF'}`;
-        const cloth = document.getElementById('clothToggle');
-        cloth.className = `btn-toggle ${appState.useCloth ? 'active' : ''}`;
-        cloth.innerText = `换装模式: ${appState.useCloth ? 'ON' : 'OFF'}`;
+        document.getElementById('aiToggle').className = `btn-toggle ${appState.useAI ? 'active' : ''}`;
+        document.getElementById('aiToggle').innerText = `AI 润色: ${appState.useAI ? 'ON' : 'OFF'}`;
+        const data = appState.mode === 'character' ? appState.charData : appState.prodData;
+        const sp = document.getElementById('specialToggle');
+        sp.innerText = `${appState.mode === 'character' ? '换装参考' : '上身效果'}: ${data.useSpecial ? 'ON' : 'OFF'}`;
+        sp.className = `btn-toggle ${data.useSpecial ? 'active' : ''}`;
     }
 
     async function generatePrompt() {
-        let p = [];
-        if(appState.age) p.push(appState.age + "岁");
-        if(appState.selSubject) p.push(appState.selSubject);
-        appState.modulesData.forEach(m => { 
-            if(appState.selTags[m.id]?.length) p.push(appState.selTags[m.id].join(', ')); 
-        });
-        let res = p.join(', ');
-        if(!res) return;
-
-        const btn = document.getElementById('genBtn');
+        const data = appState.mode === 'character' ? appState.charData : appState.prodData;
+        let p = []; if(appState.mode==='character' && appState.age) p.push(appState.age+"岁");
+        if(data.selSubject) p.push(data.selSubject);
+        data.modules.forEach(m => { if(data.selTags[m.id]?.length) p.push(data.selTags[m.id].join(', ')); });
+        let res = p.join(', '); if(!res) return;
+        if(data.useSpecial) res = (appState.mode==='character' ? "按照参考图帮我把这个服装穿到模特身上" : "按照参考图帮我把这个产品搭配到模特身上") + res;
+        if(appState.mode==='product') res = "产品商业摄影, " + res + ", 8k超清";
         if(appState.useAI && appState.apiKey) {
-            btn.disabled = true; btn.innerHTML = "润色中...";
+            const btn = document.getElementById('genBtn'); btn.innerText = "AI 润色中...";
             try {
                 const response = await fetch("https://api.deepseek.com/chat/completions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${appState.apiKey}` },
-                    body: JSON.stringify({
-                        model: "deepseek-chat",
-                        messages: [{role: "system", content: "你是一位专业的AI绘画提示词专家。请将用户提供的关键词扩充成一段生动的中文提示词，直接输出结果。"}, {role: "user", content: res}]
-                    })
+                    method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${appState.apiKey}` },
+                    body: JSON.stringify({ model: "deepseek-chat", messages: [{role:"system", content:"你是一个绘图提示词专家，直接返回扩充后的中文描述。"}, {role:"user", content:res}] })
                 });
-                const data = await response.json();
-                res = data.choices[0].message.content;
-            } catch(e) { res = "AI润色失败，请检查网络或Key: " + res; }
-            btn.disabled = false; btn.innerHTML = "🚀<span>生成词</span>";
+                const aiData = await response.json(); res = aiData.choices[0].message.content;
+            } catch(e) { console.error(e); }
+            btn.innerHTML = "🚀<span>生成词</span>";
         }
-        if(appState.useCloth) res = "按照参考图帮我把这个衣服穿到模特身上，" + res;
-        document.getElementById('resultBox').value = res;
-        addToHistory(res);
+        document.getElementById('resultBox').value = res; addToHistory(res);
     }
 
-    // --- 辅助 ---
+    function toggleSettingsPanel(e) { e.stopPropagation(); document.getElementById('settingsDropdown').classList.toggle('open'); }
+    function saveState() { appState.age = document.getElementById('ageInput').value; localStorage.setItem('prompt_v9_state', JSON.stringify(appState)); }
+    function saveSettings() { appState.apiKey = document.getElementById('apiKeyInput').value.trim(); saveState(); }
+    function selectBasic(t) { const data = appState.mode === 'character' ? appState.charData : appState.prodData; data.selSubject = (data.selSubject === t ? null : t); renderBasic(); saveState(); }
+    function delBasic(t) { const data = appState.mode === 'character' ? appState.charData : appState.prodData; data.subjects = data.subjects.filter(i => i !== t); renderBasic(); saveState(); }
+    function toggleTag(mid, t) { const data = appState.mode === 'character' ? appState.charData : appState.prodData; if(!data.selTags[mid]) data.selTags[mid] = []; if(data.selTags[mid].includes(t)) data.selTags[mid] = data.selTags[mid].filter(x => x !== t); else data.selTags[mid].push(t); renderModules(); saveState(); }
+    function setCat(mid, i) { const data = appState.mode === 'character' ? appState.charData : appState.prodData; data.modules.find(x => x.id === mid).activeCat = i; renderModules(); saveState(); }
+    function addCat(mid) { const n = prompt("分类名:"); if(n) { const data = appState.mode === 'character' ? appState.charData : appState.prodData; const m = data.modules.find(x => x.id === mid); m.categories.push({name: n, tags: []}); m.activeCat = m.categories.length - 1; renderModules(); saveState(); } }
+    function deleteModule(id) { if(confirm("删除该模块？")) { const data = appState.mode === 'character' ? appState.charData : appState.prodData; data.modules = data.modules.filter(x => x.id !== id); renderModules(); saveState(); } }
+    function addNewModule() { const t = prompt("新词库名称:"); if(t) { const data = appState.mode === 'character' ? appState.charData : appState.prodData; data.modules.push({ id: 'm'+Date.now(), title: t, activeCat: 0, categories: [{name:'默认', tags:[]}] }); renderModules(); saveState(); } }
+    function delTag(mid, t) { const data = appState.mode === 'character' ? appState.charData : appState.prodData; const m = data.modules.find(x => x.id === mid); m.categories[m.activeCat].tags = m.categories[m.activeCat].tags.filter(x => x !== t); if(data.selTags[mid]) data.selTags[mid] = data.selTags[mid].filter(x => x !== t); renderModules(); saveState(); }
+    function toggleTheme() { appState.theme = appState.theme === 'dark' ? 'light' : 'dark'; updateUIThemes(); saveState(); }
+    function updateUIThemes() { document.body.className = appState.theme + '-theme'; document.getElementById('themeBtn').innerText = appState.theme === 'dark' ? '☀️ 浅色' : '🌙 深色'; }
+    function addToHistory(t) { const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); appState.history.unshift({t, time}); if(appState.history.length > 20) appState.history.pop(); updateHistoryUI(); saveState(); }
+    function updateHistoryUI() { document.getElementById('histCount').innerText = appState.history.length; document.getElementById('historyList').innerHTML = appState.history.map(x => `<div class="history-item" onclick="document.getElementById('resultBox').value='${x.t.replace(/'/g, "\\'")}';toggleHistory()"><div>${x.t}</div><div style="flex:none; margin-left:10px;">${x.time}</div></div>`).join(''); }
+    function toggleHistory() { document.getElementById('historyList').classList.toggle('open'); }
+    function clearAllHistory() { if(confirm("清空？")) { appState.history = []; updateHistoryUI(); saveState(); } }
+    function clearResult() { document.getElementById('resultBox').value = ''; }
+    function copyResult() { const b = document.getElementById('resultBox'); b.select(); document.execCommand('copy'); const btn = document.getElementById('copyBtn'); btn.innerHTML = "✅<span>完成</span>"; setTimeout(() => btn.innerHTML = "📋<span>复制</span>", 1500); }
+    function exportData() { const blob = new Blob([JSON.stringify(appState)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Prompt_Config.json'; a.click(); }
+    function importData(e) { const reader = new FileReader(); reader.onload = (x) => { try { appState = JSON.parse(x.target.result); saveState(); location.reload(); } catch(e){alert("失败")} }; reader.readAsText(e.target.files[0]); }
+    function resetAll() { if(confirm("重置所有？")) { localStorage.clear(); location.reload(); } }
     function initResize() {
         const handle = document.getElementById('resizeHandle');
-        let isMoving = false;
-        const move = (e) => {
-            if(!isMoving) return;
-            const y = e.touches ? e.touches[0].clientY : e.clientY;
-            const h = window.innerHeight - y;
-            if(h > 150 && h < window.innerHeight * 0.9) {
-                appState.panelHeight = h; document.documentElement.style.setProperty('--panel-height', h + 'px');
-            }
-        }
-        handle.addEventListener('mousedown', () => isMoving = true);
-        window.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', () => { isMoving = false; saveState(); });
-        handle.addEventListener('touchstart', () => isMoving = true);
-        window.addEventListener('touchmove', move);
-        window.addEventListener('touchend', () => { isMoving = false; saveState(); });
+        const move = (e) => { const y = e.touches ? e.touches[0].clientY : e.clientY; const h = window.innerHeight - y; if(h > 150 && h < 600) { appState.panelHeight = h; document.documentElement.style.setProperty('--panel-height', h + 'px'); } };
+        handle.addEventListener('mousedown', () => document.addEventListener('mousemove', move));
+        document.addEventListener('mouseup', () => { document.removeEventListener('mousemove', move); saveState(); });
+        handle.addEventListener('touchstart', () => document.addEventListener('touchmove', move));
+        document.addEventListener('touchend', () => { document.removeEventListener('touchmove', move); saveState(); });
     }
-
-    function toggleTheme() { 
-        appState.theme = appState.theme === 'dark' ? 'light' : 'dark'; 
-        updateUIThemes(); saveState(); 
-    }
-    function updateUIThemes() {
-        document.body.className = appState.theme + '-theme';
-        document.getElementById('themeBtn').innerText = appState.theme === 'dark' ? '☀️ 明亮模式' : '🌙 深色模式';
-    }
-    function addToHistory(t) {
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        appState.history.unshift({t, time}); if(appState.history.length > 20) appState.history.pop();
-        updateHistoryUI(); saveState();
-    }
-    function updateHistoryUI() {
-        document.getElementById('histCount').innerText = appState.history.length;
-        document.getElementById('historyList').innerHTML = appState.history.map(x => `
-            <div class="history-item" onclick="document.getElementById('resultBox').value='${x.t.replace(/'/g, "\\'")}';toggleHistory()">
-                <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${x.t}</div>
-                <div style="color:var(--text-sub); margin-left:10px;">${x.time}</div>
-            </div>
-        `).join('');
-    }
-    function toggleHistory() { document.getElementById('historyList').classList.toggle('open'); }
-    function clearAllHistory() { if(confirm("清空历史记录？")) { appState.history = []; updateHistoryUI(); saveState(); } }
-    function clearResult() { document.getElementById('resultBox').value = ''; }
-    function copyResult() {
-        const b = document.getElementById('resultBox'); b.select(); document.execCommand('copy');
-        const btn = document.getElementById('copyBtn'); btn.innerHTML = "✅<span>完成</span>";
-        setTimeout(() => btn.innerHTML = "📋<span>复制</span>", 1500);
-    }
-    function exportData() {
-        const blob = new Blob([JSON.stringify(appState)], {type: 'application/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Prompt_Config.json'; a.click();
-    }
-    function importData(e) {
-        const reader = new FileReader();
-        reader.onload = (x) => { try { appState = JSON.parse(x.target.result); saveState(); location.reload(); } catch(e){alert("导入失败")} }
-        reader.readAsText(e.target.files[0]);
-    }
-    function resetAll() { if(confirm("警告：重置将删除所有本地自定义词库且无法撤销！")) { localStorage.clear(); location.reload(); } }
-
     init();
 </script>
 </body>
