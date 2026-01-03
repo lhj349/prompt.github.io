@@ -427,14 +427,14 @@
         if(data.selSubject) p.push(data.selSubject);
         data.modules.forEach(m => { if(data.selTags[m.id]?.length) p.push(data.selTags[m.id].join(', ')); });
         let res = p.join(', '); if(!res) return;
-        if(data.useSpecial) res = (appState.mode==='character' ? "参考图换装模式：" : "产品实际穿戴上身效果：") + res;
+        if(data.useSpecial) res = (appState.mode==='character' ? "帮我把参考图的服装穿到模特身上，" : "产品穿戴上身效果：") + res;
         if(appState.mode==='product') res = "产品摄影, " + res + ", 8k极高画质";
         if(appState.useAI && appState.apiKey) {
             const btn = document.getElementById('genBtn'); btn.innerText = "AI 润色中...";
             try {
                 const response = await fetch("https://api.deepseek.com/chat/completions", {
                     method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${appState.apiKey}` },
-                    body: JSON.stringify({ model: "deepseek-chat", messages: [{role:"system", content:"你是一个绘图提示词专家，直接返回扩充后的中文描述。"}, {role:"user", content:res}] })
+                    body: JSON.stringify({ model: "deepseek-chat", messages: [{role:"system", content:"你是一个小红书风格/ins风格/买家秀的提示词专家，直接返回扩充后的中文描述，。"}, {role:"user", content:res}] })
                 });
                 const aiData = await response.json(); res = aiData.choices[0].message.content;
             } catch(e) { showModal({msg: "AI连接失败"}); }
