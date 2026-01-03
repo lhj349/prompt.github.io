@@ -434,7 +434,7 @@
             try {
                 const response = await fetch("https://api.deepseek.com/chat/completions", {
                     method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${appState.apiKey}` },
-                    body: JSON.stringify({ model: "deepseek-chat", messages: [{role:"system", content:"你是一个小红书风格/ins风格/买家秀的提示词专家，直接返回扩充后的中文描述，。"}, {role:"user", content:res}] })
+                    body: JSON.stringify({ model: "deepseek-chat", messages: [{role:"system", content:"你是一个图片提示词专家，图片风格以小红书风格/ins风格，直接返回扩充后的中文描述，。"}, {role:"user", content:res}] })
                 });
                 const aiData = await response.json(); res = aiData.choices[0].message.content;
             } catch(e) { showModal({msg: "AI连接失败"}); }
